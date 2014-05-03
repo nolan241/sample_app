@@ -12,7 +12,10 @@
   </thead>
 
   <tbody>
-    <% @users.each do |user| %>
+    <!-- added .to.a to remove when nil 
+    http://stackoverflow.com/questions/12345326/elegant-way-to-handle-undefined-method-each-for-nilnilclass-in-ruby-for-opt
+    -->
+    <% @users.to_a.each do |user| %>
       <tr>
         <td><%= user.name %></td>
         <td><%= user.email %></td>
