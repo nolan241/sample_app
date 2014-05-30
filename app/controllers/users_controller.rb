@@ -11,7 +11,9 @@ class UsersController < ApplicationController
   def create
     @user = User.new(user_params)
     if @user.save
-      # Handle a successful save.
+      sign_in @user
+      flash[:success] = "Welcome to the Sample App!"
+      redirect_to @user
     else
       render 'new'
     end
@@ -22,5 +24,18 @@ class UsersController < ApplicationController
     def user_params
       params.require(:user).permit(:name, :email, :password,
                                    :password_confirmation)
+    end
+
+    def User.new_remember_token
+      SecureRandom.urlsafe_base64
+    end
+
+    def User.digest(token)
+      Digest::SHA1.hexdigest(token.to_s)
+    end
+
+#not sur eif needed  private
+    def create_remember_token
+       self.remember_token = User.digest(User.new_remember_token)
     end
 end
