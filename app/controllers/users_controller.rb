@@ -3,7 +3,7 @@ class UsersController < ApplicationController
   before_action :correct_user,   only: [:edit, :update]
 
   def index
-    @users = User.all
+    @users = User.paginate(page: params[:page])
   end
 
   def show
@@ -26,6 +26,7 @@ class UsersController < ApplicationController
   end
 
   def edit
+    @user = User.find(params[:id])
   end
 
   def update
@@ -37,8 +38,14 @@ class UsersController < ApplicationController
     end
   end
 
+  def destroy
+    User.find(params[:id]).destroy
+    flash[:success] = "User deleted."
+    redirect_to users_url
+  end
+
   def User.new_remember_token
-    SecureRandom.urlsafe_base64
+     SecureRandom.urlsafe_base64
   end
 
   def User.digest(token)
@@ -47,24 +54,24 @@ class UsersController < ApplicationController
 
 #not sure if needed  #private
   def create_remember_token
-     self.remember_token = User.digest(User.new_remember_token)
+      self.remember_token = User.digest(User.new_remember_token)
   end
 
-private
+  private
 
-  def user_params
-    params.require(:user).permit(:name, :email, :password,
-                                 :password_confirmation)
-  end
+    def user_params
+      params.require(:user).permit(:name, :email, :password,
+                                   :password_confirmation)
+    end
 
-  # Before filters
+    # Before filters
 
-  def signed_in_user
+    def signed_in_user
       unless signed_in?
         store_location
-        redirect_to signin_url, notice: "Please sign in."  
+        redirect_to signin_url, notice: "Please sign in."
       end
-  end
+    end
 
     def correct_user
       @user = User.find(params[:id])
