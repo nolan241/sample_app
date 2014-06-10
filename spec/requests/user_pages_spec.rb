@@ -5,8 +5,10 @@ describe "User pages" do
   subject { page }
 
   describe "index" do
+
     let(:user) { FactoryGirl.create(:user) }
-    before(:each) do
+
+    before do
       sign_in user
       visit users_path
     end
@@ -86,6 +88,27 @@ describe "User pages" do
         it { should have_selector('div.alert.alert-success', text: 'Welcome') }
       end
 
+    describe "delete links" do
+
+      it { should_not have_link('delete') }
+
+      describe "as an admin user" do
+        let(:admin) { FactoryGirl.create(:admin) }
+        before do
+          sign_in admin
+          visit users_path
+        end
+
+        it { should have_link('delete', href: user_path(User.first)) }
+        it "should be able to delete another user" do
+          expect do
+            click_link('delete', match: :first)
+          end.to change(User, :count).by(-1)
+        end
+        it { should_not have_link('delete', href: user_path(admin)) }
+      end
+    end
+  end
 
   describe "edit" do
     let(:user) { FactoryGirl.create(:user) }
@@ -123,4 +146,3 @@ describe "User pages" do
       specify { expect(user.reload.email).to eq new_email }
     end
   end
-end
