@@ -25,8 +25,7 @@ class User < ActiveRecord::Base
   end
 
   def feed
-    # This is preliminary. See "Following users" for the full implementation.
-    Micropost.where("user_id = ?", id)
+    Micropost.from_users_followed_by(self)
   end
 
   def following?(other_user)
@@ -45,5 +44,10 @@ class User < ActiveRecord::Base
 
     def create_remember_token
       self.remember_token = User.digest(User.new_remember_token)
+    end
+
+    def self.from_users_followed_by(user)
+      followed_user_ids = user.followed_user_ids
+      where("user_id IN (?) OR user_id = ?", followed_user_ids, user)
     end
 end
